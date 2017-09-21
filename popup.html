@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Etherdelta Guard</title>
+    <style type="text/css">
+      body {
+        padding: 0 15px;
+        white-space: nowrap;
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      ul {
+        padding-left: 25px;
+      }
+
+      .green {color: darkgreen; font-weight:bold;}
+      .red {color: darkred; font-weight:bold;}
+    </style>
+
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+    -->
+    <script src="md5.js"></script>
+    <script src="popup.js"></script>    
+  </head>
+
+  <body>
+    <h1>Etherdelta Guard</h1>
+    <div id="noetherdelta">
+        <p>This is not an etherdelta instance!</p>
+    </div>
+    <div id="etherdelta">
+        <p>SSL: <span id="ssl" class="green">Yes</span></p>
+        <p>File Matching: <span id="filematching" class="green">2 / 2</span></p>
+        <ul>
+            <li>index.html <span id="file-index-html" class="green">OK</span></li>
+            <li>main.js <span id="file-main-js" class="green">OK</span></li>
+            <li>script.js <span id="file-script-js" class="green">OK</span></li>
+        </ul>
+    </div>
+  </body>
+</html>
