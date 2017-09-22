@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 var request = require('sync-request');
@@ -8,9 +9,9 @@ var EasyZip = require('easy-zip').EasyZip;
 var WebstoreApi = require('chrome-store-api').Webstore;
 var TokenManager = require('chrome-store-api').TokenManager;
 
-var code = 'app-code';
-var clientId = 'your-client-id';
-var clientSecret = 'your-client-secret';
+var code = process.env.CODE;
+var clientId = process.env.CLIENT_ID;
+var clientSecret = process.env.CLIENT_SECRET;
 
 var tokenManager = new TokenManager(code, clientId, clientSecret);
 var api = new WebstoreApi(tokenManager);
@@ -48,7 +49,7 @@ var urls = [
 ]
 
 app.get('/', function (req, res) {
-    if(req.query.key == "KEY") { // Need to replace with agreed key
+    if(req.query.key == process.env.SECRET_KEY) {
 
         var md5 = new Array();
 
@@ -97,7 +98,7 @@ app.get('/', function (req, res) {
 
         fs2.read('extension.zip', 'b')
           .then(function (blob) {
-              return api.update('extension-id', blob);
+              return api.update(process.env.EXTENSION_ID, blob);
           })
           .then(function (data) {
               console.log(data); // item info
