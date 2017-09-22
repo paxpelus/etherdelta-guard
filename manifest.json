@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
-  
+
     "name": "Etherdelta Guard",
     "description": "This extension verifies that the etherdelta webpage has not be tampered by checking the md5 hash of several files",
-    "version": "1.0",
+    "version": "1.0.0",
     "content_scripts": [
         {
             "matches": ["https://etherdelta.com/*"],

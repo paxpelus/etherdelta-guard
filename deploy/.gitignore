@@ -1,3 +1,4 @@
 node_modules/
 extension.zip
 .env
+data.json

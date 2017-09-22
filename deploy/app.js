@@ -8,13 +8,18 @@ var fs2 = require('q-io/fs');
 var EasyZip = require('easy-zip').EasyZip;
 var WebstoreApi = require('chrome-store-api').Webstore;
 var TokenManager = require('chrome-store-api').TokenManager;
+var FileStorage = require('chrome-store-api').FileStorage;
 
 var code = process.env.CODE;
 var clientId = process.env.CLIENT_ID;
 var clientSecret = process.env.CLIENT_SECRET;
 
-var tokenManager = new TokenManager(code, clientId, clientSecret);
+var storage = new FileStorage('data.json');
+
+var tokenManager = new TokenManager(code, clientId, clientSecret, storage);
 var api = new WebstoreApi(tokenManager);
+
+
 
 var urls = [
     'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/index.html',
@@ -65,49 +70,65 @@ app.get('/', function (req, res) {
                 return console.log(err);
             }
 
-            console.log("The file was saved!");
+            console.log("The hashes file was updated!");
 
+            //Update version in manifest file
+            fs.readFile('../manifest.json', function read(err, data) {
+                if (err) throw err;
 
-            var exec = require('child_process').exec;
-            function puts(error, stdout, stderr) { console.log(stdout) }
-            exec("git add ../hashes.js", puts);
-            exec("git commit -m 'Hash update'", puts);
-            exec("git push", puts);
+                var manifest = JSON.parse(data);
+
+                var version = manifest.version.split(".");
+                manifest.version = version[0] + '.' + version[1] + '.' + (parseInt(version[2]) + 1)
+
+                fs.writeFile("../manifest.json", JSON.stringify(manifest), function(err) {
+                    if(err) return console.log(err);
+                    console.log("Manifest was saved");
+
+                    //Update github
+                    var exec = require('child_process').exec;
+                    function puts(error, stdout, stderr) { console.log(stdout) }
+                    exec("git add ../hashes.js", puts);
+                    exec("git add ../manifest.json", puts);
+                    exec("git commit -m 'Hash update'", puts);
+                    exec("git push", puts);
+
+                    // Create the zip file for uploading to chrome store
+                    var zip = new EasyZip();
+                    //batch add files
+                    var files = [
+                    	{source : '../background/background.js',target:'background/background.js'},
+                    	{source : '../content_scripts/script.js',target:'content_scripts/script.js'},
+                    	{source : '../icons/icon-error.png',target:'icons/icon-error.png'},
+                    	{source : '../icons/icon-inactive.png',target:'icons/icon-inactive.png'},
+                    	{source : '../icons/icon.png',target:'icons/icon.png'},
+                    	{source : '../libraries/md5.js',target:'libraries/md5.js'},
+                    	{source : '../hashes.js',target:'hashes.js'},
+                    	{source : '../manifest.json',target:'manifest.json'},
+                    	{source : '../popup.js',target:'popup.js'},
+                    	{source : '../popup.html',target:'popup.html'},
+                    	{source : '../README.md',target:'README.md'}
+                    ];
+
+                    zip.batchAdd(files,function(){
+                    	zip.writeToFile('extension.zip');
+                    });
+
+                    fs2.read('extension.zip', 'b')
+                      .then(function (blob) {
+                          return api.update(process.env.EXTENSION_ID, blob);
+                      })
+                      .then(function (data) {
+                          console.log(data); // item info
+                          res.send(md5)
+                      })
+                      .catch(function (err) {
+                          console.log(err.response.itemError);
+                          res.send("Error updating chrome store")
+                      });
+                });
+            });
         });
-
-        // Create the zip file for uploading to chrome store
-        var zip = new EasyZip();
-        //batch add files
-        var files = [
-        	{source : '../background/background.js',target:'background/background.js'},
-        	{source : '../content_scripts/script.js',target:'content_scripts/script.js'},
-        	{source : '../icons/icon-error.png',target:'icons/icon-error.png'},
-        	{source : '../icons/icon-inactive.png',target:'icons/icon-inactive.png'},
-        	{source : '../icons/icon.png',target:'icons/icon.png'},
-        	{source : '../libraries/md5.js',target:'libraries/md5.js'},
-        	{source : '../hashes.js',target:'hashes.js'},
-        	{source : '../manifest.json',target:'manifest.json'},
-        	{source : '../popup.js',target:'popup.js'},
-        	{source : '../popup.html',target:'popup.html'},
-        	{source : '../README.md',target:'README.md'}
-        ];
-
-        zip.batchAdd(files,function(){
-        	zip.writeToFile('extension.zip');
-        });
-
-        fs2.read('extension.zip', 'b')
-          .then(function (blob) {
-              return api.update(process.env.EXTENSION_ID, blob);
-          })
-          .then(function (data) {
-              console.log(data); // item info
-              res.send(md5)
-          })
-          .catch(function (err) {
-              console.log(err);
-              res.send("Error updating chrome store")
-          });
     } else {
         res.send("Unauthorized")
     }
