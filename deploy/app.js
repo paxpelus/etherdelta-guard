@@ -22,7 +22,7 @@ var api = new WebstoreApi(tokenManager);
 
 
 var urls = [
-    'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/index.html',
+    'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/index_com.html',
     'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/js/main.js',
     'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/script.js',
     'https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/config/main.json',
@@ -60,7 +60,7 @@ app.get('/', function (req, res) {
 
         for ( var i = 0 ; i < urls.length ; i++) {
             md5.push({
-                url: urls[i].replace('https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/', 'https://etherdelta.com/'),
+                url: urls[i].replace('https://raw.githubusercontent.com/etherdelta/etherdelta.github.io/master/', 'https://etherdelta.com/').replace('index_com.html', 'index.html'),
                 md5: checkFile(urls[i])});
         }
 
@@ -90,7 +90,7 @@ app.get('/', function (req, res) {
                     function puts(error, stdout, stderr) { console.log(stdout) }
                     exec("git add ../hashes.js", puts);
                     exec("git add ../manifest.json", puts);
-                    exec("git commit -m 'Hash update'", puts);
+                    exec("git commit -m 'Version update'", puts);
                     exec("git push", puts);
 
                     // Create the zip file for uploading to chrome store
@@ -120,7 +120,15 @@ app.get('/', function (req, res) {
                       })
                       .then(function (data) {
                           console.log(data); // item info
-                          res.send(md5)
+
+                          api.publish(process.env.EXTENSION_ID, 'trusted')
+                           .then(function (data) {
+                              console.log("The app is published!");
+                              res.send(md5)
+                           })
+                           .catch(function (err) {
+                              console.log(err);
+                           });
                       })
                       .catch(function (err) {
                           console.log(err.response.itemError);
