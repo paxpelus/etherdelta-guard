@@ -65,6 +65,13 @@ app.get('/', function (req, res) {
             }
 
             console.log("The file was saved!");
+
+
+            var exec = require('child_process').exec;
+            function puts(error, stdout, stderr) { console.log(stdout) }
+            exec("git add ../hashes.js", puts);
+            exec("git commit -m 'Hash update'", puts);
+            exec("git push", puts);
         });
 
         // Create the zip file for uploading to chrome store
