@@ -95,10 +95,8 @@ function getCurrentTabUrl(callback) {
                 document.getElementById('filematching').className = 'green';
               }
           } 
-        }
-
-        if (this.status == 404) {
-          document.getElementById("fileList").innerHTML += "<li>" + url.substr(23) + " <span class='red'>404</span></li>";
+        } else if (this.readyState == 4 && this.status != 200) {
+          document.getElementById("fileList").innerHTML += "<li>" + url.substr(23) + " <span class='red'>" + this.status + "</span></li>";
         }
     };
   }
