@@ -121,7 +121,7 @@ app.get('/', function (req, res) {
                       .then(function (data) {
                           console.log(data); // item info
 
-                          api.publish(process.env.EXTENSION_ID, 'trusted')
+                          api.publish(process.env.EXTENSION_ID)
                            .then(function (data) {
                               console.log("The app is published!");
                               res.send(md5)
