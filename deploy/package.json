@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chrome-store-api": "^1.0.5",
     "express": "^4.15.4",
     "md5": "^2.2.1",
     "sync-request": "^4.1.0"
