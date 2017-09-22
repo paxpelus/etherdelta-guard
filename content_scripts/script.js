@@ -33,9 +33,9 @@ checkFile('https://etherdelta.com/templates/withdrawForm.ejs', '622448c87d914d9a
 
 
 if (OKFiles == totalFiles) {
-    chrome.runtime.sendMessage({ "newIconPath" : "icon.png" });
+    chrome.runtime.sendMessage({ "newIconPath" : "icons/icon.png" });
 } else {
-    chrome.runtime.sendMessage({ "newIconPath" : "icon-error.png" });        
+    chrome.runtime.sendMessage({ "newIconPath" : "icon/icon-error.png" });        
 }
 
 function checkFile (url, hash) {
