@@ -131,7 +131,7 @@ app.get('/', function (req, res) {
                                    });
                               })
                               .catch(function (err) {
-                                  console.log(err.response.itemError);
+                                  console.log(err.response);
                                   res.send("Error updating chrome store")
                               });
                     	}, 3000);
