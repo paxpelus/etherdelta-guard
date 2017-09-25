@@ -112,28 +112,30 @@ app.get('/', function (req, res) {
 
                     zip.batchAdd(files,function(){
                     	zip.writeToFile('extension.zip');
+
+                    	setTimeout(function(){
+                    	    fs2.read('extension.zip', 'b')
+                              .then(function (blob) {
+                                  return api.update(process.env.EXTENSION_ID, blob);
+                              })
+                              .then(function (data) {
+                                  console.log(data); // item info
+
+                                  api.publish(process.env.EXTENSION_ID)
+                                   .then(function (data) {
+                                      console.log("The app is published!");
+                                      res.send(md5)
+                                   })
+                                   .catch(function (err) {
+                                      console.log(err);
+                                   });
+                              })
+                              .catch(function (err) {
+                                  console.log(err.response.itemError);
+                                  res.send("Error updating chrome store")
+                              });
+                    	}, 3000);
                     });
-
-                    fs2.read('extension.zip', 'b')
-                      .then(function (blob) {
-                          return api.update(process.env.EXTENSION_ID, blob);
-                      })
-                      .then(function (data) {
-                          console.log(data); // item info
-
-                          api.publish(process.env.EXTENSION_ID)
-                           .then(function (data) {
-                              console.log("The app is published!");
-                              res.send(md5)
-                           })
-                           .catch(function (err) {
-                              console.log(err);
-                           });
-                      })
-                      .catch(function (err) {
-                          console.log(err.response.itemError);
-                          res.send("Error updating chrome store")
-                      });
                 });
             });
         });
